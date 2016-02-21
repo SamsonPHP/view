@@ -63,6 +63,7 @@ class Module extends \samson\core\ExternalModule
     public function prepare(array $params = array())
     {
         $this->generator->scan(__SAMSON_CWD__.'/src');
+        $this->generator->scan(__SAMSON_CWD__.'/app');
         $signature = $this->generator->hash();
         if ($this->cache_refresh($signature)) {
             $this->generator->generate($this->cache_path);
