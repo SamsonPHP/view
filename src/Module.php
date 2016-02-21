@@ -28,7 +28,9 @@ class Module extends \samson\core\ExternalModule
      */
     public function __construct($path, ResourcesInterface $resources, SystemInterface $system, Generator $generator = null)
     {
-        $this->generator = $generator;
+        $this->generator = isset($generator)
+        ? $generator
+        : new Generator(new \samsonphp\generator\Generator(), 'view', array('\www', '\view'));;
 
         parent::__construct($path, $resources, $system);
     }
@@ -49,7 +51,6 @@ class Module extends \samson\core\ExternalModule
 
         }
 
-        $this->generator = new Generator(new \samsonphp\generator\Generator(), 'view');
         $this->generator->scan(__SAMSON_CWD__.'/src');
         $this->generator->generate($this->cache_path);
 
