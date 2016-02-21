@@ -28,11 +28,27 @@ class Module extends \samson\core\ExternalModule
      */
     public function __construct($path, ResourcesInterface $resources, SystemInterface $system, Generator $generator = null)
     {
-        $this->generator = isset($generator)
-        ? $generator
-        : new Generator(new \samsonphp\generator\Generator(), 'view', array('\www', '\view'));;
-
         parent::__construct($path, $resources, $system);
+
+        $this->generator = isset($generator)
+            ? $generator
+            : new Generator(new \samsonphp\generator\Generator(), 'view', array('\www', '\view'));
+
+        // Register View class file autoloader
+        spl_autoload_register(array($this, 'autoload'));
+    }
+
+    /**
+     * Help autoloading view classes as we know where we store them.
+     *
+     * @param string $class View class name for searching
+     */
+    public function autoload($class)
+    {
+        $classPath = $this->cache_path.str_replace('\\', '/', $class).'.php';
+        if (file_exists($classPath)) {
+            require_once($classPath);
+        }
     }
 
     /**
