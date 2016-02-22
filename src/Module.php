@@ -77,6 +77,7 @@ class Module extends \samson\core\ExternalModule
         }
 
         // Add system static variable to all classes
+        require_once 'View.php';
         View::$system = &$this->system;
 
         // Continue parent logic
