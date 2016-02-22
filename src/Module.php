@@ -32,7 +32,12 @@ class Module extends \samson\core\ExternalModule
 
         $this->generator = isset($generator)
             ? $generator
-            : new Generator(new \samsonphp\generator\Generator(), 'view', array('\www', '\view'));
+            : new Generator(
+                new \samsonphp\generator\Generator(),
+                'view',
+                array('\www', '\view'),
+                View::class
+            );
 
         // Register View class file autoloader
         spl_autoload_register(array($this, 'autoload'));
@@ -63,7 +68,7 @@ class Module extends \samson\core\ExternalModule
     public function prepare(array $params = array())
     {
         $this->generator->scan(__SAMSON_CWD__.'/src');
-        $this->generator->scan(__SAMSON_CWD__.'/app');
+        //$this->generator->scan(__SAMSON_CWD__.'/app');
         $signature = $this->generator->hash();
         if ($this->cache_refresh($signature)) {
             $this->generator->generate($this->cache_path);
@@ -71,6 +76,10 @@ class Module extends \samson\core\ExternalModule
             file_put_contents($signature, '');
         }
 
+        // Add system static variable to all classes
+        View::$system = &$this->system;
+
+        // Continue parent logic
         return parent::prepare($params);
     }
 }
