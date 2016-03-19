@@ -13,10 +13,38 @@ use samsonframework\view\Generator;
  * SamsonPHP view module
  * @package samsonphp\view
  */
-class Module extends \samson\core\ExternalModule
+class Module extends \samson\core\ExternalModule implements \samsonframework\core\CompressInterface
 {
     /** @var Generator */
     protected $generator;
+
+    /**
+     * This method should be used to override generic compression logic.
+     *
+     * @param mixed $obj Pointer to compressor instance
+     * @param array|null $code Collection of already compressed code
+     * @return bool False if generic compression needs to be avoided
+     */
+    public function beforeCompress(&$obj = null, array &$code = null)
+    {
+
+    }
+
+    /**
+     * This method is called after generic compression logic has finished.
+     *
+     * @param mixed $obj Pointer to compressor instance
+     * @param array|null $code Collection of already compressed code
+     * @return bool False if generic compression needs to be avoided
+     */
+    public function afterCompress(&$obj = null, array &$code = null)
+    {
+        // Iterate through generated php code
+        foreach ($this->generator->metadata as $metadata) {
+            // Compress generated php code
+            $obj->compress_php($metadata->path, $this, $code, $metadata->namespace);
+        }
+    }
 
     /**
      * Module constructor.
