@@ -15,8 +15,20 @@ use samsonframework\view\Generator;
  */
 class Module extends \samson\core\ExternalModule implements \samsonframework\core\CompressInterface
 {
+    /** @var string Module identifier */
+    protected $id = STATIC_RESOURCE_HANDLER;
+
+    /** View handling event */
+    const EVENT_VIEW_HANDLER = 'samsonphp.view.handler';
+
     /** @var Generator */
     protected $generator;
+
+    /** Universal controller action */
+    public function __handler()
+    {
+
+    }
 
     /**
      * This method should be used to override generic compression logic.
@@ -39,11 +51,27 @@ class Module extends \samson\core\ExternalModule implements \samsonframework\cor
      */
     public function afterCompress(&$obj = null, array &$code = null)
     {
+        $this->generator->generate($this->cache_path);
         // Iterate through generated php code
-        foreach ($this->generator->metadata as $metadata) {
+        foreach ($this->generator->metadata as $file => $metadata) {
             // Compress generated php code
-            $obj->compress_php($metadata->path, $this, $code, $metadata->namespace);
+            $obj->compress_php($metadata->generatedPath, $this, $code, $metadata->namespace);
         }
+    }
+
+    /**
+     * Generator view code handler.
+     *
+     * @param string $viewCode Source view code
+     * @return string Modified view code
+     */
+    public function viewHandler($viewCode)
+    {
+        // Fire event
+        \samsonphp\Event\Event::fire(self::EVENT_VIEW_HANDLER, array(&$viewCode));
+
+        // Return modified view code
+        return $viewCode;
     }
 
     /**
@@ -64,7 +92,8 @@ class Module extends \samson\core\ExternalModule implements \samsonframework\cor
                 new \samsonphp\generator\Generator(),
                 'view',
                 array('\www', '\view'),
-                View::class
+                View::class,
+                array($this, 'viewHandler')
             );
 
         // Register View class file autoloader
