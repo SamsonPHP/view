@@ -8,6 +8,7 @@ namespace samsonphp\view;
 use samsonframework\core\ResourcesInterface;
 use samsonframework\core\SystemInterface;
 use samsonframework\view\Generator;
+use samsonphp\Event\Event;
 
 /**
  * SamsonPHP view module
@@ -54,7 +55,7 @@ class Module extends \samson\core\ExternalModule implements \samsonframework\cor
      * @param mixed $obj Pointer to compressor instance
      * @param array|null $code Collection of already compressed code
      *
-*@return bool False if generic compression needs to be avoided
+     * @return bool False if generic compression needs to be avoided
      */
     public function beforeCompress(&$obj = null, array &$code = null)
     {
@@ -89,7 +90,7 @@ class Module extends \samson\core\ExternalModule implements \samsonframework\cor
     public function viewHandler($viewCode)
     {
         // Fire event
-        \samsonphp\Event\Event::fire(self::EVENT_VIEW_HANDLER, array(&$viewCode));
+        Event::fire(self::EVENT_VIEW_HANDLER, array(&$viewCode));
 
         // Return modified view code
         return $viewCode;

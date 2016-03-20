@@ -13,6 +13,7 @@
   ],
   "require": {
     "samsonos/php_core": "1.*",
+    "samsonphp/event": "1.*",
     "samsonframework/view": "*"
   },
   "require-dev": {
