@@ -16,10 +16,18 @@ use samsonphp\Event\Event;
  */
 class Module extends \samson\core\ExternalModule implements \samsonframework\core\CompressInterface
 {
-    /** View handling event */
+    /** View handling events */
     const EVENT_VIEW_HANDLER = 'samsonphp.view.handler';
+    const EVENT_VIEW_COMPRESSION = 'samsonphp.view.compression';
+
+    /** Pattern for compressing $this->src() calls with resource path */
+    const SRC_COMPRESSION_PATTERN = '/(<\?=|<\?php\s*echo\s*\(?)\s*\$this->src\(\s*(\'|\")\s*(src|www)\/(?<path>[^\'\"]+)(\'|\")\s*\)\s*\?>/';
+    /** Pattern for replacing $this->src() calls with controller url */
+    const SRC_PATTERN = '/(<\?=|<\?php\s*echo\s*\(?)\s*\$this->src\(\s*(\'|\")(?<path>[^\'\"]+)(\'|\")\s*\)\s*\?>/';
+
     /** @var string Module identifier */
     protected $id = STATIC_RESOURCE_HANDLER;
+
     /** @var Generator */
     protected $generator;
 
@@ -41,8 +49,7 @@ class Module extends \samson\core\ExternalModule implements \samsonframework\cor
                 new \samsonphp\generator\Generator(),
                 'view',
                 array('\www', '\view'),
-                View::class,
-                array($this, 'viewHandler')
+                View::class
             );
 
         // Register View class file autoloader
@@ -72,7 +79,7 @@ class Module extends \samson\core\ExternalModule implements \samsonframework\cor
      */
     public function afterCompress(&$obj = null, array &$code = null)
     {
-        $this->generator->generate($this->cache_path);
+        $this->generator->generate($this->cache_path, array($this, 'compressionHandler'));
         // Iterate through generated php code
         foreach ($this->generator->metadata as $file => $metadata) {
             // Compress generated php code
@@ -91,6 +98,38 @@ class Module extends \samson\core\ExternalModule implements \samsonframework\cor
     {
         // Fire event
         Event::fire(self::EVENT_VIEW_HANDLER, array(&$viewCode));
+
+        // Find all paths to intermediate controller
+        if (preg_match_all(self::SRC_PATTERN, $viewCode, $matches)) {
+            for ($i = 0, $size = count($matches['path']); $i < $size; $i++) {
+                // Remove function call just leave path related to src(for modules) or www(for local)
+                $viewCode = str_replace($matches[0][$i], '/' . STATIC_RESOURCE_HANDLER . '/?p=' . $matches['path'][$i], $viewCode);
+            }
+        }
+
+        // Return modified view code
+        return $viewCode;
+    }
+
+    /**
+     * Compression view code handler.
+     *
+     * @param string $viewCode Source view code
+     *
+     * @return string Modified view code
+     */
+    public function compressionHandler($viewCode)
+    {
+        // Fire event
+        Event::fire(self::EVENT_VIEW_COMPRESSION, array(&$viewCode));
+
+        // Find all pathes to intermediate controller
+        if (preg_match_all(self::SRC_COMPRESSION_PATTERN, $viewCode, $matches)) {
+            for ($i = 0, $size = count($matches['path']); $i < $size; $i++) {
+                // Remove function call just leave path related to src(for modules) or www(for local)
+                $viewCode = str_replace($matches[0][$i], $matches['path'][$i], $viewCode);
+            }
+        }
 
         // Return modified view code
         return $viewCode;
@@ -123,8 +162,8 @@ class Module extends \samson\core\ExternalModule implements \samsonframework\cor
         $this->generator->scan(__SAMSON_CWD__.'/src');
         //$this->generator->scan(__SAMSON_CWD__.'/app');
         $signature = $this->generator->hash();
-        if ($this->cache_refresh($signature)) {
-            $this->generator->generate($this->cache_path);
+        if ($this->cache_refresh($signature) != -1) {
+            $this->generator->generate($this->cache_path, array($this, 'viewHandler'));
             // Store cache file
             file_put_contents($signature, '');
         }
