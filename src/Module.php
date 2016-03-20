@@ -15,64 +15,12 @@ use samsonframework\view\Generator;
  */
 class Module extends \samson\core\ExternalModule implements \samsonframework\core\CompressInterface
 {
-    /** @var string Module identifier */
-    protected $id = STATIC_RESOURCE_HANDLER;
-
     /** View handling event */
     const EVENT_VIEW_HANDLER = 'samsonphp.view.handler';
-
+    /** @var string Module identifier */
+    protected $id = STATIC_RESOURCE_HANDLER;
     /** @var Generator */
     protected $generator;
-
-    /** Universal controller action */
-    public function __handler()
-    {
-
-    }
-
-    /**
-     * This method should be used to override generic compression logic.
-     *
-     * @param mixed $obj Pointer to compressor instance
-     * @param array|null $code Collection of already compressed code
-     * @return bool False if generic compression needs to be avoided
-     */
-    public function beforeCompress(&$obj = null, array &$code = null)
-    {
-
-    }
-
-    /**
-     * This method is called after generic compression logic has finished.
-     *
-     * @param mixed $obj Pointer to compressor instance
-     * @param array|null $code Collection of already compressed code
-     * @return bool False if generic compression needs to be avoided
-     */
-    public function afterCompress(&$obj = null, array &$code = null)
-    {
-        $this->generator->generate($this->cache_path);
-        // Iterate through generated php code
-        foreach ($this->generator->metadata as $file => $metadata) {
-            // Compress generated php code
-            $obj->compress_php($metadata->generatedPath, $this, $code, $metadata->namespace);
-        }
-    }
-
-    /**
-     * Generator view code handler.
-     *
-     * @param string $viewCode Source view code
-     * @return string Modified view code
-     */
-    public function viewHandler($viewCode)
-    {
-        // Fire event
-        \samsonphp\Event\Event::fire(self::EVENT_VIEW_HANDLER, array(&$viewCode));
-
-        // Return modified view code
-        return $viewCode;
-    }
 
     /**
      * Module constructor.
@@ -98,6 +46,53 @@ class Module extends \samson\core\ExternalModule implements \samsonframework\cor
 
         // Register View class file autoloader
         spl_autoload_register(array($this, 'autoload'));
+    }
+
+    /**
+     * This method should be used to override generic compression logic.
+     *
+     * @param mixed $obj Pointer to compressor instance
+     * @param array|null $code Collection of already compressed code
+     *
+*@return bool False if generic compression needs to be avoided
+     */
+    public function beforeCompress(&$obj = null, array &$code = null)
+    {
+
+    }
+
+    /**
+     * This method is called after generic compression logic has finished.
+     *
+     * @param mixed      $obj  Pointer to compressor instance
+     * @param array|null $code Collection of already compressed code
+     *
+     * @return bool False if generic compression needs to be avoided
+     */
+    public function afterCompress(&$obj = null, array &$code = null)
+    {
+        $this->generator->generate($this->cache_path);
+        // Iterate through generated php code
+        foreach ($this->generator->metadata as $file => $metadata) {
+            // Compress generated php code
+            $obj->compress_php($metadata->generatedPath, $this, $code, $metadata->namespace);
+        }
+    }
+
+    /**
+     * Generator view code handler.
+     *
+     * @param string $viewCode Source view code
+     *
+     * @return string Modified view code
+     */
+    public function viewHandler($viewCode)
+    {
+        // Fire event
+        \samsonphp\Event\Event::fire(self::EVENT_VIEW_HANDLER, array(&$viewCode));
+
+        // Return modified view code
+        return $viewCode;
     }
 
     /**
