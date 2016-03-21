@@ -12,7 +12,8 @@
     }
   ],
   "require": {
-    "samsonos/php_core":"1.*",
+    "samsonos/php_core": "1.*",
+    "samsonphp/event": "1.*",
     "samsonframework/view": "*"
   },
   "require-dev": {
@@ -22,12 +23,19 @@
   "license": "Open Software License (OSL) v 3.0",
   "homepage": "http://samsonos.com/",
   "autoload": {
-    "classmap": ["src/"],
+    "classmap": [
+      "src/"
+    ],
     "psr-4": {
       "samsonphp\\view\\": "src/"
-    }
+    },
+    "files": [
+      "src/global.php"
+    ]
   },
-  "config":{
-    "github-protocols":["https"]
+  "config": {
+    "github-protocols": [
+      "https"
+    ]
   }
 }
