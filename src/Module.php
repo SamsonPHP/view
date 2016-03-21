@@ -25,9 +25,6 @@ class Module extends \samson\core\ExternalModule implements \samsonframework\cor
     /** Pattern for replacing $this->src() calls with controller url */
     const SRC_PATTERN = '/(<\?=|<\?php\s*echo\s*\(?)\s*\$this->src\(\s*(\'|\")(?<path>[^\'\"]+)(\'|\")\s*\)\s*\?>/';
 
-    /** @var string Module identifier */
-    protected $id = STATIC_RESOURCE_HANDLER;
-
     /** @var Generator */
     protected $generator;
 
