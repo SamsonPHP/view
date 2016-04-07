@@ -21,7 +21,7 @@ class Module extends \samson\core\ExternalModule implements \samsonframework\cor
     const EVENT_VIEW_COMPRESSION = 'samsonphp.view.compression';
 
     /** Pattern for compressing $this->src() calls with resource path */
-    const SRC_COMPRESSION_PATTERN = '/(<\?=|<\?php\s*echo\s*\(?)\s*\$this->src\(\s*(\'|\")\s*(src|www)\/(?<path>[^\'\"]+)(\'|\")\s*\)\s*\?>/';
+    const SRC_COMPRESSION_PATTERN = '/(<\?=|<\?php\s*echo)\s*\$this->src\(\s*(\'|\")\s*\/?(src|www)\/(?<path>[^\'\"]+)(\'|\")\s*\)\s*\?>/';
     /** Pattern for replacing $this->src() calls with controller url */
     const SRC_PATTERN = '/(<\?=|<\?php\s*echo\s*\(?)\s*\$this->src\(\s*(\'|\")(?<path>[^\'\"]+)(\'|\")\s*\)\s*\?>/';
 
@@ -120,7 +120,7 @@ class Module extends \samson\core\ExternalModule implements \samsonframework\cor
         // Fire event
         Event::fire(self::EVENT_VIEW_COMPRESSION, array(&$viewCode));
 
-        // Find all pathes to intermediate controller
+        // Find all paths to intermediate controller
         if (preg_match_all(self::SRC_COMPRESSION_PATTERN, $viewCode, $matches)) {
             for ($i = 0, $size = count($matches['path']); $i < $size; $i++) {
                 // Remove function call just leave path related to src(for modules) or www(for local)
