@@ -21,9 +21,9 @@ class Module extends \samson\core\ExternalModule implements \samsonframework\cor
     const EVENT_VIEW_COMPRESSION = 'samsonphp.view.compression';
 
     /** Pattern for compressing $this->src() calls with resource path */
-    const SRC_COMPRESSION_PATTERN = '/(<\?=|<\?php\s*echo)\s*\$this->src\(\s*(\'|\")\s*\/?(src|www)\/(?<path>[^\'\"]+)(\'|\")\s*\)\s*\?>/';
+    const SRC_COMPRESSION_PATTERN = '/(<\?=|<\?php\s*echo)\s*\$this->src\(\s*(\'|\")\s*\/?(src|www)\/(?<path>[^\'\"]+)(\'|\")\s*\);?\s*\?>/';
     /** Pattern for replacing $this->src() calls with controller url */
-    const SRC_PATTERN = '/(<\?=|<\?php\s*echo\s*\(?)\s*\$this->src\(\s*(\'|\")(?<path>[^\'\"]+)(\'|\")\s*\)\s*\?>/';
+    const SRC_PATTERN = '/(<\?=|<\?php\s*echo\s*\(?)\s*\$this->src\(\s*(\'|\")(?<path>[^\'\"]+)(\'|\")\s*\);?\s*\?>/';
 
     /** @var Generator */
     protected $generator;
