@@ -28,10 +28,7 @@
     ],
     "psr-4": {
       "samsonphp\\view\\": "src/"
-    },
-    "files": [
-      "src/global.php"
-    ]
+    }
   },
   "config": {
     "github-protocols": [

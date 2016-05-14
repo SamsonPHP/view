@@ -23,8 +23,9 @@ class View extends \samsonframework\view\View
      * @param string       $path Path to resource
      * @param string $controller Url to controller for handling resource serving
      * @return string Url for resource serving
+     * TODO: Remove dependency from constant from samsonphp/resource
      */
-    public function src($path, $controller = '/view/')
+    public function src($path, $controller = STATIC_RESOURCE_HANDLER)
     {
         return $controller.'?p='.$path;
     }
